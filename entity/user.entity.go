@@ -10,15 +10,16 @@ const (
 )
 
 type User struct {
-	Username string `json:"username"`
+	Id       *uint
+	Username string
 	Password string
-	Role     UserRole `json:"role"`
+	Role     UserRole
 
-	UserInfo *UserInfo `json:"user_info"`
+	UserInfo *UserInfo
 }
 
 type UserInfo struct {
-	MonthlySalary *int `json:"monthly_salary"`
+	MonthlySalary *int
 }
 
 func (u *User) HashPassword() error {

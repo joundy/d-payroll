@@ -1,14 +1,16 @@
 package userservice
 
 import (
+	"context"
 	"d-payroll/entity"
 	repository "d-payroll/repository/db"
 	"d-payroll/repository/db/models"
 )
 
 type UserService interface {
-	CreateUser(user *entity.User) error
-	CreateUsers(users []*entity.User) error
+	CreateUser(ctx context.Context, user *entity.User) (*entity.User, error)
+	CreateUsers(ctx context.Context, users []*entity.User) ([]*entity.User, error)
+	GetUserById(ctx context.Context, id int) (*entity.User, error)
 }
 
 type userService struct {
@@ -19,57 +21,48 @@ func NewUserService(userDB repository.UserDB) UserService {
 	return &userService{userDB: userDB}
 }
 
-// TODO: code duplications
-func (s *userService) CreateUser(user *entity.User) error {
+func (s *userService) CreateUser(ctx context.Context, user *entity.User) (*entity.User, error) {
 	err := user.HashPassword()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	var userInfoModel models.UserInfo
-	if user.UserInfo != nil {
-		userInfoModel = models.UserInfo{
-			MonthlySalary: user.UserInfo.MonthlySalary,
-		}
+	var userModel models.User
+	userModel.FromUserEntity(user)
+
+	err = s.userDB.CreateUser(ctx, &userModel)
+	if err != nil {
+		return nil, err
 	}
 
-	userModel := models.User{
-		Username: user.Username,
-		Password: user.Password,
-		Role:     models.UserRole(user.Role),
-		UserInfo: &userInfoModel,
-	}
-
-	err = s.userDB.CreateUser(&userModel)
-
-	return err
+	return userModel.ToUserEntity(), nil
 }
 
-func (s *userService) CreateUsers(users []*entity.User) error {
+func (s *userService) CreateUsers(ctx context.Context, users []*entity.User) ([]*entity.User, error) {
 	userModels := make([]*models.User, len(users))
-
 	for i, user := range users {
-		err := user.HashPassword()
-		if err != nil {
-			return err
+		if err := user.HashPassword(); err != nil {
+			return nil, err
 		}
-
-		var userInfoModel models.UserInfo
-		if user.UserInfo != nil {
-			userInfoModel = models.UserInfo{
-				MonthlySalary: user.UserInfo.MonthlySalary,
-			}
-		}
-
-		userModel := models.User{
-			Username: user.Username,
-			Password: user.Password,
-			Role:     models.UserRole(user.Role),
-			UserInfo: &userInfoModel,
-		}
-
-		userModels[i] = &userModel
+		var model models.User
+		model.FromUserEntity(user)
+		userModels[i] = &model
+	}
+	if err := s.userDB.CreateUsers(ctx, userModels); err != nil {
+		return nil, err
 	}
 
-	return s.userDB.CreateUsers(userModels)
+	createdUsers := make([]*entity.User, len(userModels))
+	for i, model := range userModels {
+		createdUsers[i] = model.ToUserEntity()
+	}
+	return createdUsers, nil
+}
+
+func (s *userService) GetUserById(ctx context.Context, id int) (*entity.User, error) {
+	userModel, err := s.userDB.GetuserById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return userModel.ToUserEntity(), nil
 }

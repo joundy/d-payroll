@@ -1,12 +1,13 @@
 package models
 
 import (
+	"d-payroll/entity"
+
 	"gorm.io/gorm"
 )
 
 type UserRole string
 
-// TODO: proper enum
 const (
 	UserRoleAdmin    UserRole = "ADMIN"
 	UserRoleEmployee UserRole = "EMPLOYEE"
@@ -27,4 +28,32 @@ type UserInfo struct {
 
 	UserId        uint
 	MonthlySalary *int
+}
+
+func (u *User) ToUserEntity() *entity.User {
+	var userInfo *entity.UserInfo
+	if u.UserInfo != nil {
+		userInfo = &entity.UserInfo{
+			MonthlySalary: u.UserInfo.MonthlySalary,
+		}
+	}
+	return &entity.User{
+		Id:       &u.ID,
+		Username: u.Username,
+		Password: u.Password,
+		Role:     entity.UserRole(u.Role),
+		UserInfo: userInfo,
+	}
+}
+
+func (u *User) FromUserEntity(user *entity.User) {
+	u.Username = user.Username
+	u.Password = user.Password
+	u.Role = UserRole(user.Role)
+
+	if user.UserInfo != nil {
+		u.UserInfo = &UserInfo{
+			MonthlySalary: user.UserInfo.MonthlySalary,
+		}
+	}
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"d-payroll/cmd/seed/utils"
 	"d-payroll/config"
 	"d-payroll/entity"
@@ -27,7 +28,8 @@ func main() {
 }
 
 func seedUserAdmin(config *config.Config, userSvc userservice.UserService) {
-	userSvc.CreateUser(&entity.User{
+	ctx := context.Background()
+	userSvc.CreateUser(ctx, &entity.User{
 		Username: config.AdminUser.Username,
 		Password: config.AdminUser.Password,
 		Role:     entity.UserRoleAdmin,
@@ -35,6 +37,7 @@ func seedUserAdmin(config *config.Config, userSvc userservice.UserService) {
 }
 
 func seedUserEmployees(userSvc userservice.UserService) {
+	ctx := context.Background()
 	userEmployees := []*entity.User{}
 
 	for i := 0; i < 100; i++ {
@@ -50,5 +53,5 @@ func seedUserEmployees(userSvc userservice.UserService) {
 		})
 	}
 
-	userSvc.CreateUsers(userEmployees)
+	userSvc.CreateUsers(ctx, userEmployees)
 }

@@ -17,9 +17,15 @@ type AdminUserConfig struct {
 	Password string
 }
 
+type HttpConfig struct {
+	Port int32
+	Host string
+}
+
 type Config struct {
 	Postgres  *PostgresConfig
 	AdminUser *AdminUserConfig
+	Http      *HttpConfig
 }
 
 // TODO: config error handling and logging
@@ -37,6 +43,7 @@ func NewConfig() *Config {
 	return &Config{
 		Postgres:  initPostgresConfig(v),
 		AdminUser: initAdminUser(v),
+		Http:      initHttpConfig(v),
 	}
 }
 
@@ -63,5 +70,15 @@ func initAdminUser(v *viper.Viper) *AdminUserConfig {
 	return &AdminUserConfig{
 		Username: v.GetString("ADMIN_USERNAME"),
 		Password: v.GetString("ADMIN_PASSWORD"),
+	}
+}
+
+func initHttpConfig(v *viper.Viper) *HttpConfig {
+	v.SetDefault("HTTP_PORT", "3000")
+	v.SetDefault("HTTP_HOST", "0.0.0.0")
+
+	return &HttpConfig{
+		Port: v.GetInt32("HTTP_PORT"),
+		Host: v.GetString("HTTP_HOST"),
 	}
 }

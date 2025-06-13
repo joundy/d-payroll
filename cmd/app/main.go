@@ -2,7 +2,9 @@ package main
 
 import (
 	"d-payroll/config"
+	"d-payroll/controller/http"
 	repository "d-payroll/repository/db"
+	userservice "d-payroll/service/user"
 )
 
 func main() {
@@ -12,4 +14,20 @@ func main() {
 		panic(err)
 	}
 	defer db.Close()
+
+	// repositories
+
+	userDB := repository.NewUserDB(db.DB)
+
+	// services
+
+	userSvc := userservice.NewUserService(userDB)
+
+	// deliveries http
+
+	httpApp := http.NewHttpApp(config)
+
+	http.NewUserHttp(httpApp, userSvc)
+
+	httpApp.Listen()
 }
