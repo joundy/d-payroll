@@ -64,3 +64,9 @@ type ReimbursementAlreadyApprovedError struct{}
 func (r *ReimbursementAlreadyApprovedError) Error() string {
 	return "Reimbursement already approved"
 }
+
+type OvertimeAlreadyApprovedError struct{}
+
+func (o *OvertimeAlreadyApprovedError) Error() string {
+	return "Overtime already approved"
+}

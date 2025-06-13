@@ -104,7 +104,7 @@ func (r *ReimbursementHttp) GetUserReimbursements(c *fiber.Ctx) error {
 	}
 
 	if authPayload.Role == entity.UserRoleEmployee && authPayload.ID != uint(userId) {
-		return cc.Unauthorized("Unauthorized")
+		return cc.Unauthorized("Unauthorized to access other user's reimbursements")
 	}
 
 	reimbursements, err := r.reimbursementSvc.GetReimbursementsByUserID(c.Context(), uint(userId))
