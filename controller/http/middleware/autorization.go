@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"d-payroll/config"
-	ctxresponse "d-payroll/controller/http/ctx-response"
+	ctxresponse "d-payroll/controller/http/customctx"
 	"d-payroll/entity"
 	"d-payroll/utils"
 	"strings"
@@ -32,6 +32,8 @@ func Authorization(config *config.Config, roles []entity.UserRole) fiber.Handler
 		if !utils.ArrContains(roles, payload.Role) {
 			return cc.Forbidden("User is not allowed")
 		}
+
+		c.Locals("authPayload", payload)
 
 		return c.Next()
 	}

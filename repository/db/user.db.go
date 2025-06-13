@@ -13,7 +13,7 @@ import (
 type UserDB interface {
 	CreateUser(ctx context.Context, users *models.User) error
 	CreateUsers(ctx context.Context, users []*models.User) error
-	GetuserById(ctx context.Context, id int) (*models.User, error)
+	GetuserById(ctx context.Context, id uint) (*models.User, error)
 	GetUserByUsername(ctx context.Context, username string) (*models.User, error)
 }
 
@@ -33,7 +33,7 @@ func (e *userDB) CreateUsers(ctx context.Context, users []*models.User) error {
 	return e.DB.WithContext(ctx).Create(users).Error
 }
 
-func (e *userDB) GetuserById(ctx context.Context, id int) (*models.User, error) {
+func (e *userDB) GetuserById(ctx context.Context, id uint) (*models.User, error) {
 	var user models.User
 
 	tx := e.DB.Begin()

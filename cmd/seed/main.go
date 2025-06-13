@@ -53,5 +53,15 @@ func seedUserEmployees(userSvc userservice.UserService) {
 		})
 	}
 
+	var monthlySalary int = 15000000
+	userEmployees = append(userEmployees, &entity.User{
+		Username: "employee",
+		Password: "password",
+		Role:     entity.UserRoleEmployee,
+		UserInfo: &entity.UserInfo{
+			MonthlySalary: &monthlySalary,
+		},
+	})
+
 	userSvc.CreateUsers(ctx, userEmployees)
 }

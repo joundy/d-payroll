@@ -4,7 +4,9 @@ import (
 	"d-payroll/config"
 	"d-payroll/controller/http"
 	repository "d-payroll/repository/db"
+	attendanceservice "d-payroll/service/attendance"
 	authservice "d-payroll/service/auth"
+	reimbursementservice "d-payroll/service/reimbursement"
 	userservice "d-payroll/service/user"
 )
 
@@ -19,11 +21,15 @@ func main() {
 	// repositories
 
 	userDB := repository.NewUserDB(db.DB)
+	attendanceDB := repository.NewAttendanceDB(db.DB)
+	reimbursementDB := repository.NewReimbursementDB(db.DB)
 
 	// services
 
 	userSvc := userservice.NewUserService(userDB)
 	authSvc := authservice.NewAuthService(config, userSvc)
+	attendanceSvc := attendanceservice.NewAttendanceService(attendanceDB)
+	reimbursementSvc := reimbursementservice.NewReimbursementService(reimbursementDB)
 
 	// deliveries http
 
@@ -31,6 +37,8 @@ func main() {
 
 	http.NewUserHttp(httpApp, userSvc)
 	http.NewAuthHttp(httpApp, authSvc)
+	http.NewAttendanceHttp(httpApp, attendanceSvc)
+	http.NewReimbursementHttp(httpApp, reimbursementSvc)
 
 	httpApp.Listen()
 }

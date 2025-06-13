@@ -1,6 +1,10 @@
 package entity
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"time"
+
+	"golang.org/x/crypto/bcrypt"
+)
 
 type UserRole string
 
@@ -16,6 +20,9 @@ type User struct {
 	Role     UserRole
 
 	UserInfo *UserInfo
+
+	CreatedAt *time.Time
+	UpdatedAt *time.Time
 }
 
 type UserInfo struct {

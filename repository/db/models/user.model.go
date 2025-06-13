@@ -38,11 +38,13 @@ func (u *User) ToUserEntity() *entity.User {
 		}
 	}
 	return &entity.User{
-		Id:       &u.ID,
-		Username: u.Username,
-		Password: u.Password,
-		Role:     entity.UserRole(u.Role),
-		UserInfo: userInfo,
+		Id:        &u.ID,
+		Username:  u.Username,
+		Password:  u.Password,
+		Role:      entity.UserRole(u.Role),
+		UserInfo:  userInfo,
+		CreatedAt: &u.CreatedAt,
+		UpdatedAt: &u.UpdatedAt,
 	}
 }
 
@@ -55,5 +57,13 @@ func (u *User) FromUserEntity(user *entity.User) {
 		u.UserInfo = &UserInfo{
 			MonthlySalary: user.UserInfo.MonthlySalary,
 		}
+	}
+
+	if user.CreatedAt != nil {
+		u.CreatedAt = *user.CreatedAt
+	}
+
+	if user.UpdatedAt != nil {
+		u.UpdatedAt = *user.UpdatedAt
 	}
 }

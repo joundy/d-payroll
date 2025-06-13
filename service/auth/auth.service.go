@@ -33,7 +33,7 @@ func (a *authService) Login(ctx context.Context, login *entity.Login) (*entity.A
 	}
 
 	token, err := utils.GenerateToken(a.config.Auth.JwtSecret, &entity.AuthTokenPayload{
-		Id:   *user.Id,
+		ID:   *user.Id,
 		Role: user.Role,
 	})
 	if err != nil {

@@ -1,7 +1,8 @@
-package ctxresponse
+package customctx
 
 import (
 	"d-payroll/entity"
+	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -44,4 +45,21 @@ func (c *CustomContext) Forbidden(msg string) error {
 
 func (c *CustomContext) NotFound(msg string) error {
 	return c.jsonError(fiber.StatusNotFound, msg)
+}
+
+func (c *CustomContext) UnprocessableEntity(msg string) error {
+	return c.jsonError(fiber.StatusUnprocessableEntity, msg)
+}
+
+func (c *CustomContext) Conflict(msg string) error {
+	return c.jsonError(fiber.StatusConflict, msg)
+}
+
+func (c *CustomContext) GetAuthPayload() (*entity.AuthTokenPayload, error) {
+	if c.Locals("authPayload") != nil {
+		authPayload := c.Locals("authPayload").(*entity.AuthTokenPayload)
+		return authPayload, nil
+	}
+
+	return nil, fmt.Errorf("AuthPayload not found")
 }

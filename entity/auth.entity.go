@@ -10,6 +10,6 @@ type AuthToken struct {
 }
 
 type AuthTokenPayload struct {
-	Id   uint
+	ID   uint
 	Role UserRole
 }

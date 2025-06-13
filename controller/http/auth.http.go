@@ -1,7 +1,7 @@
 package http
 
 import (
-	ctxresponse "d-payroll/controller/http/ctx-response"
+	ctxresponse "d-payroll/controller/http/customctx"
 	"d-payroll/controller/http/dto"
 	internalerror "d-payroll/internal-error"
 	authservice "d-payroll/service/auth"

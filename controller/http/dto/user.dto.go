@@ -1,6 +1,9 @@
 package dto
 
-import "d-payroll/entity"
+import (
+	"d-payroll/entity"
+	"time"
+)
 
 type CreateUserInfoBodyDto struct {
 	MonthlySalary *int `json:"monthly_salary" validate:"required"`
@@ -33,10 +36,12 @@ type userInfoDto struct {
 }
 
 type userResponseDto struct {
-	Id       *uint        `json:"id,omitempty"`
-	Username string       `json:"username"`
-	Role     string       `json:"role"`
-	UserInfo *userInfoDto `json:"user_info,omitempty"`
+	Id        *uint        `json:"id,omitempty"`
+	Username  string       `json:"username"`
+	Role      string       `json:"role"`
+	UserInfo  *userInfoDto `json:"user_info,omitempty"`
+	CreatedAt *time.Time   `json:"created_at,omitempty"`
+	UpdatedAt *time.Time   `json:"updated_at,omitempty"`
 }
 
 func (r *userResponseDto) fromUserEntity(user *entity.User) {
@@ -47,6 +52,14 @@ func (r *userResponseDto) fromUserEntity(user *entity.User) {
 		r.UserInfo = &userInfoDto{
 			MonthlySalary: user.UserInfo.MonthlySalary,
 		}
+	}
+
+	if user.CreatedAt != nil {
+		r.CreatedAt = user.CreatedAt
+	}
+
+	if user.UpdatedAt != nil {
+		r.UpdatedAt = user.UpdatedAt
 	}
 }
 

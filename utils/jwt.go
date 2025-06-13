@@ -8,7 +8,7 @@ import (
 
 func GenerateToken(secret string, payload *entity.AuthTokenPayload) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":   payload.Id,
+		"id":   payload.ID,
 		"role": payload.Role,
 	})
 
@@ -44,7 +44,7 @@ func VerifyToken(secret string, token string) (*entity.AuthTokenPayload, error) 
 		}
 
 		payload := &entity.AuthTokenPayload{
-			Id:   uint(idFloat),
+			ID:   uint(idFloat),
 			Role: entity.UserRole(roleStr),
 		}
 

@@ -1,7 +1,7 @@
 package http
 
 import (
-	ctxresponse "d-payroll/controller/http/ctx-response"
+	ctxresponse "d-payroll/controller/http/customctx"
 	"d-payroll/controller/http/dto"
 	"d-payroll/controller/http/middleware"
 	"d-payroll/entity"
@@ -21,8 +21,8 @@ func NewUserHttp(h *httpApp, userSvc userservice.UserService) {
 		userSvc: userSvc,
 	}
 
-	h.App.Post("/users", middleware.Authorization(h.config, []entity.UserRole{entity.UserRoleEmployee}), userHttp.CreateUser)
-	h.App.Get("/users/:id", middleware.Authorization(h.config, []entity.UserRole{entity.UserRoleEmployee}), userHttp.getUserById)
+	h.App.Post("/users", middleware.Authorization(h.config, []entity.UserRole{entity.UserRoleAdmin}), userHttp.CreateUser)
+	h.App.Get("/users/:id", middleware.Authorization(h.config, []entity.UserRole{entity.UserRoleAdmin}), userHttp.getUserById)
 }
 
 func (u *UserHttp) CreateUser(c *fiber.Ctx) error {
@@ -53,12 +53,12 @@ func (u *UserHttp) getUserById(c *fiber.Ctx) error {
 	cc := ctxresponse.CustomContext{Ctx: c}
 
 	id := c.Params("id")
-	idInt, err := strconv.Atoi(id)
+	idInt, err := strconv.ParseUint(id, 10, 32)
 	if err != nil {
 		return cc.BadRequest("Invalid ID param")
 	}
 
-	user, err := u.userSvc.GetUserById(c.Context(), idInt)
+	user, err := u.userSvc.GetUserById(c.Context(), uint(idInt))
 	if err != nil {
 		return err
 	}
