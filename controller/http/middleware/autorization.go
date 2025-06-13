@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"d-payroll/config"
-	"d-payroll/controller/http"
+	ctxresponse "d-payroll/controller/http/ctx-response"
 	"d-payroll/entity"
 	"d-payroll/utils"
 	"strings"
@@ -12,7 +12,7 @@ import (
 
 func Authorization(config *config.Config, roles []entity.UserRole) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		cc := http.CustomContext{Ctx: c}
+		cc := ctxresponse.CustomContext{Ctx: c}
 
 		token := c.Get("Authorization")
 		if token == "" {
@@ -21,7 +21,7 @@ func Authorization(config *config.Config, roles []entity.UserRole) fiber.Handler
 
 		bearerToken := strings.TrimPrefix(token, "Bearer ")
 		if bearerToken == "" {
-			return cc.Unauthorized("Invalid Authorization header")
+			return cc.Unauthorized("Invalid Bearer token")
 		}
 
 		payload, err := utils.VerifyToken(config.Auth.JwtSecret, bearerToken)
@@ -30,7 +30,7 @@ func Authorization(config *config.Config, roles []entity.UserRole) fiber.Handler
 		}
 
 		if !utils.ArrContains(roles, payload.Role) {
-			return cc.Forbidden("Forbidden")
+			return cc.Forbidden("User is not allowed")
 		}
 
 		return c.Next()

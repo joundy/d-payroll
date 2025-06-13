@@ -1,6 +1,7 @@
 package http
 
 import (
+	ctxresponse "d-payroll/controller/http/ctx-response"
 	"d-payroll/controller/http/dto"
 	internalerror "d-payroll/internal-error"
 	authservice "d-payroll/service/auth"
@@ -27,7 +28,7 @@ func NewAuthHttp(http *httpApp, authSvc authservice.AuthService) *AuthHttp {
 }
 
 func (a *AuthHttp) Login(c *fiber.Ctx) error {
-	cc := CustomContext{Ctx: c}
+	cc := ctxresponse.CustomContext{Ctx: c}
 
 	loginBody := new(dto.LoginBodyDto)
 	if err := c.BodyParser(loginBody); err != nil {

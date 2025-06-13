@@ -1,7 +1,10 @@
 package http
 
 import (
+	ctxresponse "d-payroll/controller/http/ctx-response"
 	"d-payroll/controller/http/dto"
+	"d-payroll/controller/http/middleware"
+	"d-payroll/entity"
 	userservice "d-payroll/service/user"
 	"d-payroll/utils"
 	"strconv"
@@ -18,12 +21,12 @@ func NewUserHttp(h *httpApp, userSvc userservice.UserService) {
 		userSvc: userSvc,
 	}
 
-	h.App.Post("/users", userHttp.CreateUser)
-	h.App.Get("/users/:id", userHttp.getUserById)
+	h.App.Post("/users", middleware.Authorization(h.config, []entity.UserRole{entity.UserRoleEmployee}), userHttp.CreateUser)
+	h.App.Get("/users/:id", middleware.Authorization(h.config, []entity.UserRole{entity.UserRoleEmployee}), userHttp.getUserById)
 }
 
 func (u *UserHttp) CreateUser(c *fiber.Ctx) error {
-	cc := CustomContext{Ctx: c}
+	cc := ctxresponse.CustomContext{Ctx: c}
 
 	user := new(dto.CreateUserBodyDto)
 	if err := c.BodyParser(user); err != nil {
@@ -47,7 +50,7 @@ func (u *UserHttp) CreateUser(c *fiber.Ctx) error {
 }
 
 func (u *UserHttp) getUserById(c *fiber.Ctx) error {
-	cc := CustomContext{Ctx: c}
+	cc := ctxresponse.CustomContext{Ctx: c}
 
 	id := c.Params("id")
 	idInt, err := strconv.Atoi(id)
