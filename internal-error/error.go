@@ -22,3 +22,15 @@ func (v *ValidationError) toString() string {
 func (v *ValidationError) Error() string {
 	return fmt.Sprintf("Validation error: %s", v.toString())
 }
+
+type NotFoundError struct{}
+
+func (d *NotFoundError) Error() string {
+	return "Data not found"
+}
+
+type InvalidCredentialsError struct{}
+
+func (i *InvalidCredentialsError) Error() string {
+	return "Invalid credentials"
+}

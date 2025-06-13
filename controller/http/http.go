@@ -19,7 +19,6 @@ func (c *CustomContext) Ok(data any, msg *string) error {
 	if msg != nil {
 		message = *msg
 	}
-
 	return c.Ctx.JSON(entity.HttpResponse{
 		Success: true,
 		Message: message,
@@ -27,12 +26,28 @@ func (c *CustomContext) Ok(data any, msg *string) error {
 	})
 }
 
-func (c *CustomContext) ErrorBadRequest(msg string) error {
-	return c.Ctx.Status(fiber.StatusBadRequest).JSON(entity.HttpResponse{
+func (c *CustomContext) jsonError(status int, msg string) error {
+	return c.Ctx.Status(status).JSON(entity.HttpResponse{
 		Success: false,
 		Message: msg,
 		Data:    nil,
 	})
+}
+
+func (c *CustomContext) BadRequest(msg string) error {
+	return c.jsonError(fiber.StatusBadRequest, msg)
+}
+
+func (c *CustomContext) Unauthorized(msg string) error {
+	return c.jsonError(fiber.StatusUnauthorized, msg)
+}
+
+func (c *CustomContext) Forbidden(msg string) error {
+	return c.jsonError(fiber.StatusForbidden, msg)
+}
+
+func (c *CustomContext) NotFound(msg string) error {
+	return c.jsonError(fiber.StatusNotFound, msg)
 }
 
 type httpApp struct {

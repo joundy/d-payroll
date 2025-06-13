@@ -13,13 +13,13 @@ type UserHttp struct {
 	userSvc userservice.UserService
 }
 
-func NewUserHttp(f *httpApp, userSvc userservice.UserService) {
+func NewUserHttp(h *httpApp, userSvc userservice.UserService) {
 	userHttp := &UserHttp{
 		userSvc: userSvc,
 	}
 
-	f.App.Post("/users", userHttp.CreateUser)
-	f.App.Get("/users/:id", userHttp.getUserById)
+	h.App.Post("/users", userHttp.CreateUser)
+	h.App.Get("/users/:id", userHttp.getUserById)
 }
 
 func (u *UserHttp) CreateUser(c *fiber.Ctx) error {
@@ -27,7 +27,7 @@ func (u *UserHttp) CreateUser(c *fiber.Ctx) error {
 
 	user := new(dto.CreateUserBodyDto)
 	if err := c.BodyParser(user); err != nil {
-		return cc.ErrorBadRequest("Invalid request body")
+		return cc.BadRequest("Invalid request body")
 	}
 
 	err := utils.ValidateStruct(user)
@@ -52,7 +52,7 @@ func (u *UserHttp) getUserById(c *fiber.Ctx) error {
 	id := c.Params("id")
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		return cc.ErrorBadRequest("Invalid ID")
+		return cc.BadRequest("Invalid ID param")
 	}
 
 	user, err := u.userSvc.GetUserById(c.Context(), idInt)

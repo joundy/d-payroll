@@ -22,10 +22,15 @@ type HttpConfig struct {
 	Host string
 }
 
+type AuthConfig struct {
+	JwtSecret string
+}
+
 type Config struct {
 	Postgres  *PostgresConfig
 	AdminUser *AdminUserConfig
 	Http      *HttpConfig
+	Auth      *AuthConfig
 }
 
 // TODO: config error handling and logging
@@ -44,6 +49,7 @@ func NewConfig() *Config {
 		Postgres:  initPostgresConfig(v),
 		AdminUser: initAdminUser(v),
 		Http:      initHttpConfig(v),
+		Auth:      initAuthConfig(v),
 	}
 }
 
@@ -80,5 +86,13 @@ func initHttpConfig(v *viper.Viper) *HttpConfig {
 	return &HttpConfig{
 		Port: v.GetInt32("HTTP_PORT"),
 		Host: v.GetString("HTTP_HOST"),
+	}
+}
+
+func initAuthConfig(v *viper.Viper) *AuthConfig {
+	v.SetDefault("AUTH_JWT_SECRET", "secret")
+
+	return &AuthConfig{
+		JwtSecret: v.GetString("AUTH_JWT_SECRET"),
 	}
 }
