@@ -571,5 +571,44 @@ func TestE2EUserWorkWeekFlow(t *testing.T) {
 			fmt.Printf("%s\n\n", string(payslipDataJson))
 		})
 
+		// Step 16: Admin gets payslip summaries
+		t.Run("Step 16: Admin Get Payslip Summaries", func(t *testing.T) {
+			summariesURL := fmt.Sprintf("/payrolls/%d/payslip-summaries", payrollID)
+			req, err := testApp.makeAuthenticatedRequest("POST", summariesURL, nil, adminToken)
+			require.NoError(t, err, "Failed to create get payslip summaries request")
+
+			resp, err := testApp.App.Test(req)
+			require.NoError(t, err, "Failed to test get payslip summaries request")
+			require.Equal(t, fiber.StatusOK, resp.StatusCode, "Expected get payslip summaries to succeed")
+
+			var summariesResponse entity.HttpResponse
+			body, _ := io.ReadAll(resp.Body)
+			err = json.Unmarshal(body, &summariesResponse)
+			require.NoError(t, err, "Failed to parse payslip summaries response")
+
+			fmt.Printf("✅ Step 16: Payslip summaries retrieved successfully\n")
+			fmt.Printf("📊 Payslip Summaries:\n")
+			summariesDataJson, _ := json.MarshalIndent(summariesResponse.Data, "", "  ")
+			fmt.Printf("%s\n\n", string(summariesDataJson))
+		})
+
+		// Step 17: Admin gets total take-home pay
+		t.Run("Step 17: Admin Get Total Take-Home Pay", func(t *testing.T) {
+			totalPayURL := fmt.Sprintf("/payrolls/%d/total-take-home-pay", payrollID)
+			req, err := testApp.makeAuthenticatedRequest("POST", totalPayURL, nil, adminToken)
+			require.NoError(t, err, "Failed to create get total take-home pay request")
+
+			resp, err := testApp.App.Test(req)
+			require.NoError(t, err, "Failed to test get total take-home pay request")
+			require.Equal(t, fiber.StatusOK, resp.StatusCode, "Expected get total take-home pay to succeed")
+
+			var totalPayResponse entity.HttpResponse
+			body, _ := io.ReadAll(resp.Body)
+			err = json.Unmarshal(body, &totalPayResponse)
+			require.NoError(t, err, "Failed to parse total take-home pay response")
+
+			fmt.Printf("✅ Step 17: Total take-home pay retrieved successfully\n")
+			fmt.Printf("💵 Total Take-Home Pay: %v\n\n", totalPayResponse.Data)
+		})
 	})
 }

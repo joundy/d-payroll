@@ -108,3 +108,7 @@ func (u *UserPayslipSummary) FromUserPayslipSummaryEntity(summary *entity.UserPa
 		u.UpdatedAt = *summary.UpdatedAt
 	}
 }
+
+func (UserPayslipSummary) TableName() string {
+	return "user_payslip_summaries"
+}

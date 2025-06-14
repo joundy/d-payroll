@@ -55,7 +55,7 @@ CREATE TABLE user_reimbursements (
 	deleted_at TIMESTAMP DEFAULT NULL
 );
 
-CREATE TABLE user_payslips_summary (
+CREATE TABLE user_payslip_summaries (
 	id SERIAL PRIMARY KEY,
 	payroll_id INT NOT NULL,
 	user_id INT NOT NULL,
@@ -80,5 +80,4 @@ CREATE TABLE payrolls (
 	deleted_at TIMESTAMP DEFAULT NULL
 );
 
-
-COMMIT;
+COMMIT

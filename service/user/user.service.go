@@ -12,6 +12,7 @@ type UserService interface {
 	CreateUsers(ctx context.Context, users []*entity.User) ([]*entity.User, error)
 	GetUserById(ctx context.Context, id uint) (*entity.User, error)
 	GetUserByUsername(ctx context.Context, username string) (*entity.User, error)
+	GetUserIds(ctx context.Context) ([]uint, error)
 }
 
 type userService struct {
@@ -74,4 +75,8 @@ func (s *userService) GetUserByUsername(ctx context.Context, username string) (*
 		return nil, err
 	}
 	return userModel.ToUserEntity(), nil
+}
+
+func (s *userService) GetUserIds(ctx context.Context) ([]uint, error) {
+	return s.userDB.GetUserIds(ctx)
 }

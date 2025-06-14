@@ -129,3 +129,19 @@ func (p *PayslipDto) FromPayslipEntity(payslip *entity.Payslip) {
 	}
 	p.TakeHomePay = payslip.TakeHomePay
 }
+
+type UserPayslipSummaryDto struct {
+	PayrollID        uint      `json:"payroll_id"`
+	UserID           uint      `json:"user_id"`
+	TotalTakeHomePay int       `json:"total_take_home_pay"`
+	CreatedAt        time.Time `json:"created_at"`
+	UpdatedAt        time.Time `json:"updated_at"`
+}
+
+func (u *UserPayslipSummaryDto) FromUserPayslipSummaryEntity(summary *entity.UserPayslipSummary) {
+	u.PayrollID = summary.PayrollID
+	u.UserID = summary.UserID
+	u.TotalTakeHomePay = summary.TotalTakeHomePay
+	u.CreatedAt = *summary.CreatedAt
+	u.UpdatedAt = *summary.UpdatedAt
+}

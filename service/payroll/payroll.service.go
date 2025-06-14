@@ -21,6 +21,8 @@ type PayrollService interface {
 	RollPayroll(ctx context.Context, payrollID uint, userID uint) error
 
 	GeneratePayslip(ctx context.Context, payrollID uint, userID uint) (*entity.Payslip, error)
+	GetPayslipSummaries(ctx context.Context, payrollID uint) ([]*entity.UserPayslipSummary, error)
+	GetTotalTakeHomePay(ctx context.Context, payrollID uint) (int, error)
 }
 
 type payrollService struct {
@@ -71,6 +73,36 @@ func (s *payrollService) GetPayrolls(ctx context.Context) ([]*entity.Payroll, er
 	return payrolls, nil
 }
 
+// TODO: ideally this should be run in the background, use queue, worker or something, just for now to make it simple and usable
+func (s *payrollService) processPayslipSummary(ctx context.Context, payrollID uint, userID uint) error {
+	userIds, err := s.userservice.GetUserIds(ctx)
+	if err != nil {
+		return err
+	}
+
+	for _, userId := range userIds {
+		payslip, err := s.GeneratePayslip(ctx, payrollID, userId)
+		if err != nil {
+			// TODO: this shouldbe ignored, use retry mechanism
+			return err
+		}
+
+		payrollSummary := &models.UserPayslipSummary{
+			PayrollID:        payrollID,
+			UserID:           userId,
+			TotalTakeHomePay: int(payslip.TakeHomePay),
+		}
+
+		err = s.payrollDB.CreatePayslipSummary(ctx, payrollSummary)
+		if err != nil {
+			// TODO: this shouldbe ignored, use retry mechanism
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (s *payrollService) RollPayroll(ctx context.Context, payrollID uint, userID uint) error {
 	payroll, err := s.payrollDB.GetPayrollByID(ctx, payrollID)
 	if err != nil {
@@ -80,6 +112,8 @@ func (s *payrollService) RollPayroll(ctx context.Context, payrollID uint, userID
 	if payroll.IsRolled != nil && *payroll.IsRolled {
 		return &internalerror.PayrollAlreadyRolledError{}
 	}
+
+	s.processPayslipSummary(ctx, payrollID, userID)
 
 	return s.payrollDB.RollPayroll(ctx, payrollID, userID)
 }
@@ -220,4 +254,22 @@ func (s *payrollService) GeneratePayslip(ctx context.Context, payrollID uint, us
 	}
 
 	return payslip, nil
+}
+
+func (s *payrollService) GetTotalTakeHomePay(ctx context.Context, payrollID uint) (int, error) {
+	return s.payrollDB.GetTotalPayslipTakeHomePay(ctx, payrollID)
+}
+
+func (s *payrollService) GetPayslipSummaries(ctx context.Context, payrollID uint) ([]*entity.UserPayslipSummary, error) {
+	summariesModel, err := s.payrollDB.GetPayslipSummaries(ctx, payrollID)
+	if err != nil {
+		return nil, err
+	}
+
+	summaries := make([]*entity.UserPayslipSummary, len(summariesModel))
+	for i, summaryModel := range summariesModel {
+		summaries[i] = summaryModel.ToUserPayslipSummaryEntity()
+	}
+
+	return summaries, nil
 }

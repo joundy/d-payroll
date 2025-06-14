@@ -16,6 +16,10 @@ type PayrollDB interface {
 	GetPayrollByID(ctx context.Context, payrollID uint) (*models.Payroll, error)
 	GetPayrolls(ctx context.Context) ([]*models.Payroll, error)
 	RollPayroll(ctx context.Context, payrollID uint, userID uint) error
+
+	CreatePayslipSummary(ctx context.Context, summary *models.UserPayslipSummary) error
+	GetPayslipSummaries(ctx context.Context, payrollID uint) ([]*models.UserPayslipSummary, error)
+	GetTotalPayslipTakeHomePay(ctx context.Context, payrollID uint) (int, error)
 }
 
 type payrollDB struct {
@@ -61,4 +65,32 @@ func (p *payrollDB) RollPayroll(ctx context.Context, payrollID uint, userID uint
 			"updated_by_user_id": userID,
 			"updated_at":         utils.TimeNow(),
 		}).Error
+}
+
+func (p *payrollDB) CreatePayslipSummary(ctx context.Context, summary *models.UserPayslipSummary) error {
+	return p.DB.WithContext(ctx).Create(summary).Error
+}
+
+func (p *payrollDB) GetPayslipSummaries(ctx context.Context, payrollID uint) ([]*models.UserPayslipSummary, error) {
+	var summaries []*models.UserPayslipSummary
+	if err := p.DB.WithContext(ctx).
+		Where("payroll_id = ?", payrollID).
+		Find(&summaries).Error; err != nil {
+		return nil, err
+	}
+
+	return summaries, nil
+}
+
+func (p *payrollDB) GetTotalPayslipTakeHomePay(ctx context.Context, payrollID uint) (int, error) {
+	var total int
+	err := p.DB.WithContext(ctx).
+		Model(&models.UserPayslipSummary{}).
+		Where("payroll_id = ?", payrollID).
+		Select("COALESCE(SUM(total_take_home_pay), 0)").
+		Scan(&total).Error
+	if err != nil {
+		return 0, err
+	}
+	return total, nil
 }

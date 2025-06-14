@@ -26,9 +26,12 @@ func NewPayrollHttp(http *httpApp, payrollSvc payrollservice.PayrollService) {
 	}
 
 	payrollHttp.http.App.Post("/payrolls", middleware.Authorization(http.config, []entity.UserRole{entity.UserRoleAdmin}), payrollHttp.CreatePayroll)
-	payrollHttp.http.App.Get("/payrolls", middleware.Authorization(http.config, []entity.UserRole{entity.UserRoleAdmin, entity.UserRoleAdmin}), payrollHttp.GetUserPayrolls)
-	payrollHttp.http.App.Post("/payrolls/:payrollId/roll", middleware.Authorization(http.config, []entity.UserRole{entity.UserRoleAdmin, entity.UserRoleAdmin}), payrollHttp.RollPayroll)
+	payrollHttp.http.App.Get("/payrolls", middleware.Authorization(http.config, []entity.UserRole{entity.UserRoleAdmin}), payrollHttp.GetUserPayrolls)
+	payrollHttp.http.App.Post("/payrolls/:payrollId/roll", middleware.Authorization(http.config, []entity.UserRole{entity.UserRoleAdmin}), payrollHttp.RollPayroll)
 	payrollHttp.http.App.Post("/payrolls/:payrollId/payslips", middleware.Authorization(http.config, []entity.UserRole{entity.UserRoleAdmin, entity.UserRoleEmployee}), payrollHttp.Payslips)
+
+	payrollHttp.http.App.Post("/payrolls/:payrollId/payslip-summaries", middleware.Authorization(http.config, []entity.UserRole{entity.UserRoleAdmin}), payrollHttp.PayslipSummaries)
+	payrollHttp.http.App.Post("/payrolls/:payrollId/total-take-home-pay", middleware.Authorization(http.config, []entity.UserRole{entity.UserRoleAdmin}), payrollHttp.PayslipTotalTakeHomePay)
 }
 
 func (p *PayrollHttp) CreatePayroll(c *fiber.Ctx) error {
@@ -144,4 +147,49 @@ func (p *PayrollHttp) Payslips(c *fiber.Ctx) error {
 	response.FromPayslipEntity(payslips)
 
 	return cc.Ok(response, nil)
+}
+
+func (p *PayrollHttp) PayslipSummaries(c *fiber.Ctx) error {
+	cc := ctxresponse.CustomContext{Ctx: c}
+
+	payrollId := c.Params("payrollId")
+	payrollIdInt, err := strconv.ParseUint(payrollId, 10, 32)
+	if err != nil {
+		return cc.BadRequest("Invalid payroll ID param")
+	}
+
+	payrollSummaries, err := p.payrollSvc.GetPayslipSummaries(c.Context(), uint(payrollIdInt))
+	if err != nil {
+		if errors.Is(err, &internalerror.PayrollNotRolledError{}) {
+			return cc.UnprocessableEntity("Payroll is not rolled yet")
+		}
+
+		return err
+	}
+
+	responses := make([]*dto.UserPayslipSummaryDto, len(payrollSummaries))
+	for i, summary := range payrollSummaries {
+		dtoSummary := &dto.UserPayslipSummaryDto{}
+		dtoSummary.FromUserPayslipSummaryEntity(summary)
+		responses[i] = dtoSummary
+	}
+
+	return cc.Ok(responses, nil)
+}
+
+func (p *PayrollHttp) PayslipTotalTakeHomePay(c *fiber.Ctx) error {
+	cc := ctxresponse.CustomContext{Ctx: c}
+
+	payrollId := c.Params("payrollId")
+	payrollIdInt, err := strconv.ParseUint(payrollId, 10, 32)
+	if err != nil {
+		return cc.BadRequest("Invalid payroll ID param")
+	}
+
+	totalTakeHomePay, err := p.payrollSvc.GetTotalTakeHomePay(c.Context(), uint(payrollIdInt))
+	if err != nil {
+		return err
+	}
+
+	return cc.Ok(totalTakeHomePay, nil)
 }

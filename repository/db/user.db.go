@@ -15,6 +15,7 @@ type UserDB interface {
 	CreateUsers(ctx context.Context, users []*models.User) error
 	GetuserById(ctx context.Context, id uint) (*models.User, error)
 	GetUserByUsername(ctx context.Context, username string) (*models.User, error)
+	GetUserIds(ctx context.Context) ([]uint, error)
 }
 
 type userDB struct {
@@ -65,4 +66,13 @@ func (e *userDB) GetUserByUsername(ctx context.Context, username string) (*model
 	}
 
 	return &user, nil
+}
+
+func (e *userDB) GetUserIds(ctx context.Context) ([]uint, error) {
+	var userIds []uint
+	result := e.DB.WithContext(ctx).Model(&models.User{}).Pluck("id", &userIds)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return userIds, nil
 }

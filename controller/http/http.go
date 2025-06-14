@@ -18,6 +18,7 @@ type httpApp struct {
 func NewHttpApp(config *config.Config) *httpApp {
 	app := fiber.New(fiber.Config{
 		ErrorHandler: func(c *fiber.Ctx, err error) error {
+
 			var validationError *internalerror.ValidationError
 			if errors.As(err, &validationError) {
 				return c.Status(fiber.StatusBadRequest).JSON(entity.HttpResponse{
