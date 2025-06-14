@@ -6,6 +6,7 @@ import (
 	"d-payroll/repository/db/models"
 	"d-payroll/utils"
 	"errors"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -14,6 +15,7 @@ type AttendanceDB interface {
 	CreateAttendance(ctx context.Context, attendance *models.UserAttendance) error
 	GetThisDayAttendanceByUserID(ctx context.Context, userID uint, attenanceType models.AttendanceType) (*models.UserAttendance, error)
 	GetAttendancesByUserID(ctx context.Context, userID uint) ([]*models.UserAttendance, error)
+	GetAttendancesByUserIDAndDateBetween(ctx context.Context, userID uint, startedAt time.Time, endedAt time.Time) ([]*models.UserAttendance, error)
 }
 
 type attendanceDB struct {
@@ -45,6 +47,15 @@ func (e *attendanceDB) GetThisDayAttendanceByUserID(ctx context.Context, userID 
 func (e *attendanceDB) GetAttendancesByUserID(ctx context.Context, userID uint) ([]*models.UserAttendance, error) {
 	var attendances []*models.UserAttendance
 	result := e.DB.WithContext(ctx).Where("user_id = ?", userID).Find(&attendances)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return attendances, nil
+}
+
+func (e *attendanceDB) GetAttendancesByUserIDAndDateBetween(ctx context.Context, userID uint, startedAt time.Time, endedAt time.Time) ([]*models.UserAttendance, error) {
+	var attendances []*models.UserAttendance
+	result := e.DB.WithContext(ctx).Where("user_id = ? AND created_at BETWEEN ? AND ?", userID, startedAt, endedAt).Find(&attendances)
 	if result.Error != nil {
 		return nil, result.Error
 	}

@@ -6,6 +6,7 @@ import (
 
 	internalerror "d-payroll/internal-error"
 	"d-payroll/repository/db/models"
+	"d-payroll/utils"
 
 	"gorm.io/gorm"
 )
@@ -58,5 +59,6 @@ func (p *payrollDB) RollPayroll(ctx context.Context, payrollID uint, userID uint
 		Updates(map[string]interface{}{
 			"is_rolled":          true,
 			"updated_by_user_id": userID,
+			"updated_at":         utils.TimeNow(),
 		}).Error
 }

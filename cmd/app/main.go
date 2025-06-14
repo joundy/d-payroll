@@ -35,7 +35,7 @@ func main() {
 	attendanceSvc := attendanceservice.NewAttendanceService(attendanceDB)
 	reimbursementSvc := reimbursementservice.NewReimbursementService(reimbursementDB)
 	overtimeSvc := overtimeservice.NewOvertimeService(config, overtimeDB, attendanceSvc)
-	payrollSvc := payrollservice.NewPayrollService(config, payrollDB)
+	payrollSvc := payrollservice.NewPayrollService(config, payrollDB, userSvc, attendanceSvc, reimbursementSvc, overtimeSvc)
 
 	// deliveries http
 

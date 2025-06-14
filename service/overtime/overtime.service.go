@@ -9,12 +9,14 @@ import (
 	"d-payroll/repository/db/models"
 	attendanceservice "d-payroll/service/attendance"
 	"d-payroll/utils"
+	"time"
 )
 
 type OvertimeService interface {
 	CreateOvertime(ctx context.Context, overtime *entity.UserOvertime) (*entity.UserOvertime, error)
 	ApproveOvertime(ctx context.Context, overtimeID uint, approvedByUserID uint) error
 	GetOvertimesByUserID(ctx context.Context, userID uint) ([]*entity.UserOvertime, error)
+	GetOvertimesByUserIDAndDateBetween(ctx context.Context, userID uint, startedAt time.Time, endedAt time.Time) ([]*entity.UserOvertime, error)
 }
 
 type overtimeService struct {
@@ -82,6 +84,20 @@ func (s *overtimeService) ApproveOvertime(ctx context.Context, overtimeID uint, 
 
 func (s *overtimeService) GetOvertimesByUserID(ctx context.Context, userID uint) ([]*entity.UserOvertime, error) {
 	overtimeModels, err := s.overtimeDB.GetOvertimesByUserID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	overtimes := make([]*entity.UserOvertime, len(overtimeModels))
+	for i, model := range overtimeModels {
+		overtimes[i] = model.ToOvertimeEntity()
+	}
+
+	return overtimes, nil
+}
+
+func (s *overtimeService) GetOvertimesByUserIDAndDateBetween(ctx context.Context, userID uint, startedAt time.Time, endedAt time.Time) ([]*entity.UserOvertime, error) {
+	overtimeModels, err := s.overtimeDB.GetOvertimesByUserIDAndDateBetween(ctx, userID, startedAt, endedAt)
 	if err != nil {
 		return nil, err
 	}

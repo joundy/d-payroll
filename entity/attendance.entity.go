@@ -16,3 +16,9 @@ type UserAttendance struct {
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
 }
+
+type UserAttendanceGroupedByDate struct {
+	Date     time.Time
+	CheckIn  *UserAttendance
+	CheckOut *UserAttendance
+}

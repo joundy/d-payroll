@@ -5,6 +5,7 @@ import (
 	internalerror "d-payroll/internal-error"
 	"d-payroll/repository/db/models"
 	"errors"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -14,6 +15,7 @@ type ReimbursementDB interface {
 	ApproveReimbursement(ctx context.Context, reimbursementID uint, approvedByUserID uint) error
 	GetReimbursementsByUserID(ctx context.Context, userID uint) ([]*models.UserReimbursement, error)
 	GetReimbursementByID(ctx context.Context, reimbursementID uint) (*models.UserReimbursement, error)
+	GetReimbursementsByUserIDAndDateBetween(ctx context.Context, userID uint, startedAt time.Time, endedAt time.Time) ([]*models.UserReimbursement, error)
 }
 
 type reimbursementDB struct {
@@ -59,4 +61,18 @@ func (r *reimbursementDB) GetReimbursementByID(ctx context.Context, reimbursemen
 	}
 
 	return reimbursement, nil
+}
+
+func (r *reimbursementDB) GetReimbursementsByUserIDAndDateBetween(ctx context.Context, userID uint, startedAt, endedAt time.Time) ([]*models.UserReimbursement, error) {
+	var reimbursements []*models.UserReimbursement
+	result := r.DB.WithContext(ctx).Where(
+		"user_id = ? AND created_at BETWEEN ? AND ?",
+		userID,
+		startedAt,
+		endedAt,
+	).Find(&reimbursements)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return reimbursements, nil
 }

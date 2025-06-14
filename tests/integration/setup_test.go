@@ -76,6 +76,10 @@ func SetupTestApp(t *testing.T) (*TestApp, error) {
 		Overtime: &config.OvertimeConfig{
 			MaxDurationPerDayMilis: 1000 * 60 * 60 * 3,
 		},
+		Payroll: &config.PayrollConfig{
+			DayPerMonthProrate:    22, // preference, could be 20, 30, etc..
+			MaxWorkingMilisPerDay: 8 * 60 * 60 * 1000,
+		},
 	}
 
 	// Connect to the database
@@ -108,7 +112,7 @@ func SetupTestApp(t *testing.T) (*TestApp, error) {
 	attendanceSvc := attendanceservice.NewAttendanceService(attendanceDB)
 	reimbursementSvc := reimbursementservice.NewReimbursementService(reimbursementDB)
 	overtimeSvc := overtimeservice.NewOvertimeService(cfg, overtimeDB, attendanceSvc)
-	payrollSvc := payrollservice.NewPayrollService(cfg, payrollDB)
+	payrollSvc := payrollservice.NewPayrollService(cfg, payrollDB, userSvc, attendanceSvc, reimbursementSvc, overtimeSvc)
 
 	// Initialize HTTP app
 	httpApp := http.NewHttpApp(cfg)

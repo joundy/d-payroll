@@ -28,6 +28,7 @@ func NewPayrollHttp(http *httpApp, payrollSvc payrollservice.PayrollService) {
 	payrollHttp.http.App.Post("/payrolls", middleware.Authorization(http.config, []entity.UserRole{entity.UserRoleAdmin}), payrollHttp.CreatePayroll)
 	payrollHttp.http.App.Get("/payrolls", middleware.Authorization(http.config, []entity.UserRole{entity.UserRoleAdmin, entity.UserRoleAdmin}), payrollHttp.GetUserPayrolls)
 	payrollHttp.http.App.Post("/payrolls/:payrollId/roll", middleware.Authorization(http.config, []entity.UserRole{entity.UserRoleAdmin, entity.UserRoleAdmin}), payrollHttp.RollPayroll)
+	payrollHttp.http.App.Post("/payrolls/:payrollId/payslips", middleware.Authorization(http.config, []entity.UserRole{entity.UserRoleAdmin, entity.UserRoleEmployee}), payrollHttp.Payslips)
 }
 
 func (p *PayrollHttp) CreatePayroll(c *fiber.Ctx) error {
@@ -104,4 +105,43 @@ func (p *PayrollHttp) RollPayroll(c *fiber.Ctx) error {
 	}
 
 	return cc.Ok(nil, nil)
+}
+
+func (p *PayrollHttp) Payslips(c *fiber.Ctx) error {
+	cc := ctxresponse.CustomContext{Ctx: c}
+
+	payrollId := c.Params("payrollId")
+	payrollIdInt, err := strconv.ParseUint(payrollId, 10, 32)
+	if err != nil {
+		return cc.BadRequest("Invalid payroll ID param")
+	}
+
+	userIdParam := c.Query("user_id")
+	userId, err := strconv.ParseUint(userIdParam, 10, 32)
+	if err != nil {
+		return cc.BadRequest("Invalid user ID query")
+	}
+
+	authPayload, err := cc.GetAuthPayload()
+	if err != nil {
+		return err
+	}
+
+	if authPayload.Role == entity.UserRoleEmployee && authPayload.ID != uint(userId) {
+		return cc.Unauthorized("Unauthorized to access other user's payslips")
+	}
+
+	payslips, err := p.payrollSvc.GeneratePayslip(c.Context(), uint(payrollIdInt), uint(userId))
+	if err != nil {
+		if errors.Is(err, &internalerror.PayrollNotRolledError{}) {
+			return cc.UnprocessableEntity("Payroll is not rolled yet")
+		}
+
+		return err
+	}
+
+	var response dto.PayslipDto
+	response.FromPayslipEntity(payslips)
+
+	return cc.Ok(response, nil)
 }

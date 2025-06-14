@@ -5,7 +5,6 @@ import (
 	"d-payroll/entity"
 	"d-payroll/utils"
 	"encoding/json"
-	"fmt"
 	"io"
 	"testing"
 	"time"
@@ -62,8 +61,6 @@ func TestCreateUser(t *testing.T) {
 	body, _ := io.ReadAll(resp.Body)
 	err = json.Unmarshal(body, &response)
 	require.NoError(t, err, "Failed to parse response body")
-
-	fmt.Println(response)
 
 	// Check response content
 	assert.True(t, response.Success, "Expected success to be true")

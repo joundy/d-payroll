@@ -6,6 +6,7 @@ import (
 	"d-payroll/repository/db/models"
 	"d-payroll/utils"
 	"errors"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -16,6 +17,7 @@ type OvertimeDB interface {
 	GetOvertimesByUserID(ctx context.Context, userID uint) ([]*models.UserOvertime, error)
 	GetOvertimeByID(ctx context.Context, overtimeID uint) (*models.UserOvertime, error)
 	GetThisDayOvertimeByUserID(ctx context.Context, userID uint) ([]*models.UserOvertime, error)
+	GetOvertimesByUserIDAndDateBetween(ctx context.Context, userID uint, startedAt time.Time, endedAt time.Time) ([]*models.UserOvertime, error)
 }
 
 type overtimeDB struct {
@@ -70,6 +72,20 @@ func (o *overtimeDB) GetThisDayOvertimeByUserID(ctx context.Context, userID uint
 		userID,
 		utils.GetStartOfDay(),
 		utils.GetEndOfDay(),
+	).Find(&overtimes)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return overtimes, nil
+}
+
+func (o *overtimeDB) GetOvertimesByUserIDAndDateBetween(ctx context.Context, userID uint, startedAt time.Time, endedAt time.Time) ([]*models.UserOvertime, error) {
+	var overtimes []*models.UserOvertime
+	result := o.DB.WithContext(ctx).Where(
+		"user_id = ? AND created_at BETWEEN ? AND ?",
+		userID,
+		startedAt,
+		endedAt,
 	).Find(&overtimes)
 	if result.Error != nil {
 		return nil, result.Error

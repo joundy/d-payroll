@@ -6,12 +6,14 @@ import (
 	internalerror "d-payroll/internal-error"
 	repository "d-payroll/repository/db"
 	"d-payroll/repository/db/models"
+	"time"
 )
 
 type ReimbursementService interface {
 	CreateReimbursement(ctx context.Context, reimbursement *entity.UserReimbursement) (*entity.UserReimbursement, error)
 	ApproveReimbursement(ctx context.Context, reimbursementID uint, approvedByUserID uint) error
 	GetReimbursementsByUserID(ctx context.Context, userID uint) ([]*entity.UserReimbursement, error)
+	GetReimbursementsByUserIDAndDateBetween(ctx context.Context, userID uint, startedAt time.Time, endedAt time.Time) ([]*entity.UserReimbursement, error)
 }
 
 type reimbursementService struct {
@@ -50,6 +52,20 @@ func (s *reimbursementService) ApproveReimbursement(ctx context.Context, reimbur
 
 func (s *reimbursementService) GetReimbursementsByUserID(ctx context.Context, userID uint) ([]*entity.UserReimbursement, error) {
 	reimbursementModels, err := s.reimbursementDB.GetReimbursementsByUserID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	reimbursements := make([]*entity.UserReimbursement, len(reimbursementModels))
+	for i, model := range reimbursementModels {
+		reimbursements[i] = model.ToReimbursementEntity()
+	}
+
+	return reimbursements, nil
+}
+
+func (s *reimbursementService) GetReimbursementsByUserIDAndDateBetween(ctx context.Context, userID uint, startedAt time.Time, endedAt time.Time) ([]*entity.UserReimbursement, error) {
+	reimbursementModels, err := s.reimbursementDB.GetReimbursementsByUserIDAndDateBetween(ctx, userID, startedAt, endedAt)
 	if err != nil {
 		return nil, err
 	}

@@ -88,3 +88,9 @@ type PayrollAlreadyRolledError struct{}
 func (p *PayrollAlreadyRolledError) Error() string {
 	return "Payroll already rolled"
 }
+
+type PayrollNotRolledError struct{}
+
+func (p *PayrollNotRolledError) Error() string {
+	return "Payroll not rolled"
+}

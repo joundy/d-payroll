@@ -30,12 +30,18 @@ type OvertimeConfig struct {
 	MaxDurationPerDayMilis int
 }
 
+type PayrollConfig struct {
+	DayPerMonthProrate    int
+	MaxWorkingMilisPerDay int
+}
+
 type Config struct {
 	Postgres  *PostgresConfig
 	AdminUser *AdminUserConfig
 	Http      *HttpConfig
 	Auth      *AuthConfig
 	Overtime  *OvertimeConfig
+	Payroll   *PayrollConfig
 }
 
 // TODO: config error handling and logging
@@ -57,6 +63,10 @@ func NewConfig() *Config {
 		Auth:      initAuthConfig(v),
 		Overtime: &OvertimeConfig{
 			MaxDurationPerDayMilis: 1000 * 60 * 60 * 3,
+		},
+		Payroll: &PayrollConfig{
+			DayPerMonthProrate:    22, // preference, could be 20, 30, etc..
+			MaxWorkingMilisPerDay: 8 * 60 * 60 * 1000,
 		},
 	}
 }

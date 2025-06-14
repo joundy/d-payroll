@@ -27,7 +27,6 @@ func NewHttpApp(config *config.Config) *httpApp {
 				})
 			}
 
-			fmt.Println(err)
 			return c.Status(fiber.StatusInternalServerError).JSON(entity.HttpResponse{
 				Success: false,
 				Message: "Internal Server Error",

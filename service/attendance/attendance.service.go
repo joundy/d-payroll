@@ -8,6 +8,7 @@ import (
 	"d-payroll/repository/db/models"
 	"d-payroll/utils"
 	"errors"
+	"time"
 )
 
 // TODO:
@@ -20,6 +21,8 @@ type AttendanceService interface {
 	IsCheckedOut(ctx context.Context, userID uint) (bool, error)
 
 	GetAttendancesByUserID(ctx context.Context, userID uint) ([]*entity.UserAttendance, error)
+	GetAttendancesByUserIDAndDateBetween(ctx context.Context, userID uint, startedAt time.Time, endedAt time.Time) ([]*entity.UserAttendance, error)
+	GetAttendancesByUserIDAndDateBetweenGroupByDate(ctx context.Context, userID uint, startedAt time.Time, endedAt time.Time) ([]*entity.UserAttendanceGroupedByDate, error)
 }
 
 type attendanceService struct {
@@ -113,4 +116,51 @@ func (s *attendanceService) GetAttendancesByUserID(ctx context.Context, userID u
 	}
 
 	return userAttendances, nil
+}
+
+func (s *attendanceService) GetAttendancesByUserIDAndDateBetween(ctx context.Context, userID uint, startedAt time.Time, endedAt time.Time) ([]*entity.UserAttendance, error) {
+	attendances, err := s.attendanceDB.GetAttendancesByUserIDAndDateBetween(ctx, userID, startedAt, endedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	var userAttendances []*entity.UserAttendance
+	for _, attendance := range attendances {
+		userAttendances = append(userAttendances, attendance.ToAttendanceEntity())
+	}
+
+	return userAttendances, nil
+}
+
+func (s *attendanceService) GetAttendancesByUserIDAndDateBetweenGroupByDate(ctx context.Context, userID uint, startedAt time.Time, endedAt time.Time) ([]*entity.UserAttendanceGroupedByDate, error) {
+	attendances, err := s.GetAttendancesByUserIDAndDateBetween(ctx, userID, startedAt, endedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	grouped := make(map[string]*entity.UserAttendanceGroupedByDate)
+	for _, att := range attendances {
+		if att.CreatedAt == nil {
+			continue
+		}
+		day := att.CreatedAt.Format("2006-01-02")
+		if _, exists := grouped[day]; !exists {
+			grouped[day] = &entity.UserAttendanceGroupedByDate{
+				Date: time.Date(att.CreatedAt.Year(), att.CreatedAt.Month(), att.CreatedAt.Day(), 0, 0, 0, 0, att.CreatedAt.Location()),
+			}
+		}
+		switch att.Type {
+		case entity.AttendanceTypeCheckIn:
+			grouped[day].CheckIn = att
+		case entity.AttendanceTypeCheckOut:
+			grouped[day].CheckOut = att
+		}
+	}
+
+	var result []*entity.UserAttendanceGroupedByDate
+	for _, v := range grouped {
+		result = append(result, v)
+	}
+
+	return result, nil
 }
