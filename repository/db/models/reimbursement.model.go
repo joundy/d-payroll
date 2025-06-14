@@ -2,7 +2,7 @@ package models
 
 import (
 	"d-payroll/entity"
-	"time"
+	"d-payroll/utils"
 
 	"gorm.io/gorm"
 )
@@ -20,13 +20,13 @@ type UserReimbursement struct {
 }
 
 func (u *UserReimbursement) BeforeCreate(tx *gorm.DB) (err error) {
-	u.CreatedAt = time.Now()
-	u.UpdatedAt = time.Now()
+	u.CreatedAt = utils.TimeNow()
+	u.UpdatedAt = utils.TimeNow()
 	return
 }
 
 func (u *UserReimbursement) BeforeUpdate(tx *gorm.DB) (err error) {
-	u.UpdatedAt = time.Now()
+	u.UpdatedAt = utils.TimeNow()
 	return
 }
 

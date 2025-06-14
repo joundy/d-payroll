@@ -2,6 +2,7 @@ package models
 
 import (
 	"d-payroll/entity"
+	"d-payroll/utils"
 	"time"
 
 	"gorm.io/gorm"
@@ -21,13 +22,13 @@ type Payroll struct {
 }
 
 func (p *Payroll) BeforeCreate(tx *gorm.DB) (err error) {
-	p.CreatedAt = time.Now()
-	p.UpdatedAt = time.Now()
+	p.CreatedAt = utils.TimeNow()
+	p.UpdatedAt = utils.TimeNow()
 	return
 }
 
 func (p *Payroll) BeforeUpdate(tx *gorm.DB) (err error) {
-	p.UpdatedAt = time.Now()
+	p.UpdatedAt = utils.TimeNow()
 	return
 }
 
@@ -73,13 +74,13 @@ type UserPayslipSummary struct {
 }
 
 func (u *UserPayslipSummary) BeforeCreate(tx *gorm.DB) (err error) {
-	u.CreatedAt = time.Now()
-	u.UpdatedAt = time.Now()
+	u.CreatedAt = utils.TimeNow()
+	u.UpdatedAt = utils.TimeNow()
 	return
 }
 
 func (u *UserPayslipSummary) BeforeUpdate(tx *gorm.DB) (err error) {
-	u.UpdatedAt = time.Now()
+	u.UpdatedAt = utils.TimeNow()
 	return
 }
 

@@ -53,5 +53,8 @@ func (a *AuthHttp) Login(c *fiber.Ctx) error {
 		return err
 	}
 
-	return cc.Ok(auth, nil)
+	var response dto.LoginResponseDto
+	response.FromAuthToken(auth)
+
+	return cc.Ok(response, nil)
 }

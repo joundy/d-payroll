@@ -17,3 +17,7 @@ func (l *LoginBodyDto) ToLoginEntity() *entity.Login {
 		Password: l.Password,
 	}
 }
+
+func (l *LoginResponseDto) FromAuthToken(authToken *entity.AuthToken) {
+	l.Token = authToken.Token
+}

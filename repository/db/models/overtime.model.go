@@ -2,6 +2,7 @@ package models
 
 import (
 	"d-payroll/entity"
+	"d-payroll/utils"
 	"time"
 
 	"gorm.io/gorm"
@@ -21,13 +22,13 @@ type UserOvertime struct {
 }
 
 func (u *UserOvertime) BeforeCreate(tx *gorm.DB) (err error) {
-	u.CreatedAt = time.Now()
-	u.UpdatedAt = time.Now()
+	u.CreatedAt = utils.TimeNow()
+	u.UpdatedAt = utils.TimeNow()
 	return
 }
 
 func (u *UserOvertime) BeforeUpdate(tx *gorm.DB) (err error) {
-	u.UpdatedAt = time.Now()
+	u.UpdatedAt = utils.TimeNow()
 	return
 }
 

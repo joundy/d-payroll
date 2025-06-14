@@ -30,8 +30,14 @@ func (o *overtimeDB) CreateOvertime(ctx context.Context, overtime *models.UserOv
 	return o.DB.WithContext(ctx).Create(overtime).Error
 }
 
-func (o *overtimeDB) ApproveOvertime(ctx context.Context, overtimeID uint, approvedByUserID uint) error {
-	return o.DB.WithContext(ctx).Model(&models.UserOvertime{}).Where("id = ?", overtimeID).Update("approved_by_user_id", approvedByUserID).Error
+func (o *overtimeDB) ApproveOvertime(ctx context.Context, overtimeID uint, updatedByUserID uint) error {
+	return o.DB.WithContext(ctx).
+		Model(&models.UserOvertime{}).
+		Where("id = ?", overtimeID).
+		Updates(map[string]interface{}{
+			"is_approved":        true,
+			"updated_by_user_id": updatedByUserID,
+		}).Error
 }
 
 func (o *overtimeDB) GetOvertimesByUserID(ctx context.Context, userID uint) ([]*models.UserOvertime, error) {

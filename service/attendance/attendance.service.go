@@ -6,6 +6,7 @@ import (
 	internalerror "d-payroll/internal-error"
 	repository "d-payroll/repository/db"
 	"d-payroll/repository/db/models"
+	"d-payroll/utils"
 	"errors"
 )
 
@@ -30,10 +31,9 @@ func NewAttendanceService(attendanceDB repository.AttendanceDB) AttendanceServic
 }
 
 func (s *attendanceService) Checkin(ctx context.Context, userID uint) (*entity.UserAttendance, error) {
-	// TODO: uncoment this when it's not in weekend
-	// if utils.IsWeekend() {
-	// 	return nil, &internalerror.AttendanceWeekendError{}
-	// }
+	if utils.IsWeekend() {
+		return nil, &internalerror.AttendanceWeekendError{}
+	}
 
 	attendanceModel := &models.UserAttendance{
 		UserID: userID,

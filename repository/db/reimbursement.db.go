@@ -28,8 +28,14 @@ func (r *reimbursementDB) CreateReimbursement(ctx context.Context, reimbursement
 	return r.DB.WithContext(ctx).Create(reimbursement).Error
 }
 
-func (r *reimbursementDB) ApproveReimbursement(ctx context.Context, reimbursementID uint, approvedByUserID uint) error {
-	return r.DB.WithContext(ctx).Model(&models.UserReimbursement{}).Where("id = ?", reimbursementID).Update("approved_by_user_id", approvedByUserID).Error
+func (r *reimbursementDB) ApproveReimbursement(ctx context.Context, reimbursementID uint, updatedByUserID uint) error {
+	return r.DB.WithContext(ctx).
+		Model(&models.UserReimbursement{}).
+		Where("id = ?", reimbursementID).
+		Updates(map[string]interface{}{
+			"is_approved":        true,
+			"updated_by_user_id": updatedByUserID,
+		}).Error
 }
 
 func (r *reimbursementDB) GetReimbursementsByUserID(ctx context.Context, userID uint) ([]*models.UserReimbursement, error) {

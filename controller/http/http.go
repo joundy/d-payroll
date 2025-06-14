@@ -35,6 +35,13 @@ func NewHttpApp(config *config.Config) *httpApp {
 		},
 	})
 
+	app.Get("/_health", func(c *fiber.Ctx) error {
+		return c.Status(fiber.StatusOK).JSON(entity.HttpResponse{
+			Success: true,
+			Message: "Ok",
+		})
+	})
+
 	return &httpApp{
 		config: config,
 		App:    app,
