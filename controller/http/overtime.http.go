@@ -50,6 +50,14 @@ func (o *OvertimeHttp) CreateOvertime(c *fiber.Ctx) error {
 
 	createdOvertime, err := o.overtimeSvc.CreateOvertime(c.Context(), overtime.ToOvertimeEntity(authPayload.ID))
 	if err != nil {
+		if errors.Is(err, &internalerror.OvertimeExceedsLimitError{}) {
+			return cc.UnprocessableEntity("Overtime exceeds limit")
+		}
+
+		if errors.Is(err, &internalerror.OvertimeSubmitBeforeCheckoutError{}) {
+			return cc.UnprocessableEntity("Overtime submit before checkout")
+		}
+
 		return err
 	}
 

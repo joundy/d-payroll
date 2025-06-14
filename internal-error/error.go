@@ -70,3 +70,15 @@ type OvertimeAlreadyApprovedError struct{}
 func (o *OvertimeAlreadyApprovedError) Error() string {
 	return "Overtime already approved"
 }
+
+type OvertimeExceedsLimitError struct{}
+
+func (o *OvertimeExceedsLimitError) Error() string {
+	return "Overtime exceeds limit"
+}
+
+type OvertimeSubmitBeforeCheckoutError struct{}
+
+func (o *OvertimeSubmitBeforeCheckoutError) Error() string {
+	return "Overtime cannot be submitted before checkout"
+}

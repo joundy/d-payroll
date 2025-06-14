@@ -2,6 +2,7 @@ package models
 
 import (
 	"d-payroll/entity"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -21,6 +22,18 @@ type User struct {
 	Role     UserRole `gorm:"type:user_role"`
 
 	UserInfo *UserInfo `gorm:"foreignKey:UserId;references:ID"`
+}
+
+func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
+	u.CreatedAt = time.Now()
+	u.UpdatedAt = time.Now()
+
+	return
+}
+
+func (u *User) BeforeUpdate(tx *gorm.DB) (err error) {
+	u.UpdatedAt = time.Now()
+	return
 }
 
 type UserInfo struct {

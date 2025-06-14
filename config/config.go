@@ -26,11 +26,16 @@ type AuthConfig struct {
 	JwtSecret string
 }
 
+type OvertimeConfig struct {
+	MaxDurationPerDayMilis int
+}
+
 type Config struct {
 	Postgres  *PostgresConfig
 	AdminUser *AdminUserConfig
 	Http      *HttpConfig
 	Auth      *AuthConfig
+	Overtime  *OvertimeConfig
 }
 
 // TODO: config error handling and logging
@@ -50,6 +55,9 @@ func NewConfig() *Config {
 		AdminUser: initAdminUser(v),
 		Http:      initHttpConfig(v),
 		Auth:      initAuthConfig(v),
+		Overtime: &OvertimeConfig{
+			MaxDurationPerDayMilis: 1000 * 60 * 60 * 3,
+		},
 	}
 }
 

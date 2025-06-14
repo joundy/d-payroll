@@ -7,7 +7,7 @@ type UserOvertime struct {
 	UserID           uint
 	Description      string
 	OvertimeAt       time.Time
-	DurationMinutes  int
+	DurationMilis    int
 	ApprovedByUserID *uint
 	CreatedAt        *time.Time
 	UpdatedAt        *time.Time

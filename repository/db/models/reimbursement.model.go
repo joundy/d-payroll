@@ -2,6 +2,7 @@ package models
 
 import (
 	"d-payroll/entity"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -15,6 +16,17 @@ type UserReimbursement struct {
 	Amount           int
 	ApprovedByUserID *uint
 	ApprovedByUser   *User `gorm:"foreignKey:ApprovedByUserID"`
+}
+
+func (u *UserReimbursement) BeforeCreate(tx *gorm.DB) (err error) {
+	u.CreatedAt = time.Now()
+	u.UpdatedAt = time.Now()
+	return
+}
+
+func (u *UserReimbursement) BeforeUpdate(tx *gorm.DB) (err error) {
+	u.UpdatedAt = time.Now()
+	return
 }
 
 func (r *UserReimbursement) ToReimbursementEntity() *entity.UserReimbursement {

@@ -25,8 +25,8 @@ CREATE TABLE user_attendances (
 	id SERIAL PRIMARY KEY,
 	user_id INT NOT NULL,
 	type attendance NOT NULL,
-	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	created_at TIMESTAMP NOT NULL,
+	updated_at TIMESTAMP NOT NULL,
 	deleted_at TIMESTAMP DEFAULT NULL
 );
 
@@ -35,10 +35,10 @@ CREATE TABLE user_overtimes (
 	user_id INT NOT NULL,
 	description TEXT NOT NULL,
 	overtime_at TIMESTAMP NOT NULL,
-	duration_minutes INT NOT NULL,
+	duration_milis INT NOT NULL,
 	approved_by_user_id INT DEFAULT NULL,
-	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	created_at TIMESTAMP NOT NULL,
+	updated_at TIMESTAMP NOT NULL,
 	deleted_at TIMESTAMP DEFAULT NULL
 );
 
@@ -48,8 +48,8 @@ CREATE TABLE user_reimbursements (
 	description TEXT NOT NULL,
 	amount INT NOT NULL,
 	approved_by_user_id INT DEFAULT NULL,
-	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	created_at TIMESTAMP NOT NULL,
+	updated_at TIMESTAMP NOT NULL,
 	deleted_at TIMESTAMP DEFAULT NULL
 );
 
@@ -60,8 +60,8 @@ CREATE TABLE user_payslips_summary (
 
 	total_take_home_pay INT NOT NULL,
 
-	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	created_at TIMESTAMP NOT NULL,
+	updated_at TIMESTAMP NOT NULL,
 	deleted_at TIMESTAMP DEFAULT NULL
 );
 
@@ -71,8 +71,8 @@ CREATE TABLE payrolls (
 	started_at TIMESTAMP NOT NULL,
 	ended_at TIMESTAMP NOT NULL,
 	rolled_at TIMESTAMP DEFAULT NULL,
-	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	created_at TIMESTAMP NOT NULL,
+	updated_at TIMESTAMP NOT NULL,
 	deleted_at TIMESTAMP DEFAULT NULL
 );
 

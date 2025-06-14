@@ -2,10 +2,13 @@ package overtimeservice
 
 import (
 	"context"
+	"d-payroll/config"
 	"d-payroll/entity"
 	internalerror "d-payroll/internal-error"
 	repository "d-payroll/repository/db"
 	"d-payroll/repository/db/models"
+	attendanceservice "d-payroll/service/attendance"
+	"d-payroll/utils"
 )
 
 type OvertimeService interface {
@@ -15,21 +18,49 @@ type OvertimeService interface {
 }
 
 type overtimeService struct {
-	overtimeDB repository.OvertimeDB
+	config        *config.Config
+	overtimeDB    repository.OvertimeDB
+	attendanceSvc attendanceservice.AttendanceService
 }
 
-func NewOvertimeService(overtimeDB repository.OvertimeDB) OvertimeService {
+func NewOvertimeService(config *config.Config, overtimeDB repository.OvertimeDB, attendanceSvc attendanceservice.AttendanceService) OvertimeService {
 	return &overtimeService{
-		overtimeDB: overtimeDB,
+		config:        config,
+		overtimeDB:    overtimeDB,
+		attendanceSvc: attendanceSvc,
 	}
 }
 
 func (s *overtimeService) CreateOvertime(ctx context.Context, overtime *entity.UserOvertime) (*entity.UserOvertime, error) {
+	if !utils.IsWeekend() {
+
+		isCheckedOut, err := s.attendanceSvc.IsCheckedOut(ctx, overtime.UserID)
+		if err != nil {
+			return nil, err
+		}
+
+		if !isCheckedOut {
+			return nil, &internalerror.OvertimeSubmitBeforeCheckoutError{}
+		}
+	}
+
+	thisDayOvertimes, err := s.overtimeDB.GetThisDayOvertimeByUserID(ctx, overtime.UserID)
+	if err != nil {
+		return nil, err
+	}
+	totalMilis := 0
+	for _, overtime := range thisDayOvertimes {
+		totalMilis += overtime.DurationMilis
+	}
+
+	if totalMilis+overtime.DurationMilis > s.config.Overtime.MaxDurationPerDayMilis {
+		return nil, &internalerror.OvertimeExceedsLimitError{}
+	}
 
 	overtimeModel := &models.UserOvertime{}
 	overtimeModel.FromOvertimeEntity(overtime)
 
-	err := s.overtimeDB.CreateOvertime(ctx, overtimeModel)
+	err = s.overtimeDB.CreateOvertime(ctx, overtimeModel)
 	if err != nil {
 		return nil, err
 	}

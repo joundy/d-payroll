@@ -2,6 +2,7 @@ package models
 
 import (
 	"d-payroll/entity"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -19,6 +20,17 @@ type UserAttendance struct {
 	UserID uint
 	User   *User          `gorm:"foreignKey:UserID"`
 	Type   AttendanceType `gorm:"type:attendance"`
+}
+
+func (u *UserAttendance) BeforeCreate(tx *gorm.DB) (err error) {
+	u.CreatedAt = time.Now()
+	u.UpdatedAt = time.Now()
+	return
+}
+
+func (u *UserAttendance) BeforeUpdate(tx *gorm.DB) (err error) {
+	u.UpdatedAt = time.Now()
+	return
 }
 
 func (a *UserAttendance) ToAttendanceEntity() *entity.UserAttendance {
