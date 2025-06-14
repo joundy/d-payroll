@@ -8,6 +8,7 @@ import (
 	internalerror "d-payroll/internal-error"
 	attendanceservice "d-payroll/service/attendance"
 	"errors"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -86,21 +87,31 @@ func (a *AttendanceHttp) Checkout(c *fiber.Ctx) error {
 func (a *AttendanceHttp) GetAttendancesByUserID(c *fiber.Ctx) error {
 	cc := customctx.CustomContext{Ctx: c}
 
+	userIdParam := c.Query("user_id")
+	userId, err := strconv.ParseUint(userIdParam, 10, 32)
+	if err != nil {
+		return cc.BadRequest("Invalid user ID query")
+	}
+
 	authPayload, err := cc.GetAuthPayload()
 	if err != nil {
 		return err
 	}
 
-	attendances, err := a.attendanceSvc.GetAttendancesByUserID(c.Context(), authPayload.ID)
+	if authPayload.Role == entity.UserRoleEmployee && authPayload.ID != uint(userId) {
+		return cc.Unauthorized("Unauthorized to access other user's attendances")
+	}
+
+	attendances, err := a.attendanceSvc.GetAttendancesByUserID(c.Context(), uint(userId))
 	if err != nil {
 		return err
 	}
 
-	var responses []*dto.AttendanceResponseDto
-	for _, attendance := range attendances {
+	responses := make([]*dto.AttendanceResponseDto, len(attendances))
+	for i, attendance := range attendances {
 		var response dto.AttendanceResponseDto
 		response.FromUserAttendanceEntity(attendance)
-		responses = append(responses, &response)
+		responses[i] = &response
 	}
 
 	return cc.Ok(responses, nil)

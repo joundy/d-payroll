@@ -82,3 +82,9 @@ type OvertimeSubmitBeforeCheckoutError struct{}
 func (o *OvertimeSubmitBeforeCheckoutError) Error() string {
 	return "Overtime cannot be submitted before checkout"
 }
+
+type PayrollAlreadyRolledError struct{}
+
+func (p *PayrollAlreadyRolledError) Error() string {
+	return "Payroll already rolled"
+}

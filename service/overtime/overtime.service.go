@@ -73,7 +73,7 @@ func (s *overtimeService) ApproveOvertime(ctx context.Context, overtimeID uint, 
 	if err != nil {
 		return err
 	}
-	if overtime.ApprovedByUserID != nil {
+	if overtime.IsApproved {
 		return &internalerror.OvertimeAlreadyApprovedError{}
 	}
 

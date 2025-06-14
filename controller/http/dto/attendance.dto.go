@@ -6,10 +6,10 @@ import (
 )
 
 type AttendanceResponseDto struct {
-	Id        *uint      `json:"id,omitempty"`
+	Id        *uint      `json:"id"`
 	Type      string     `json:"type"`
-	CreatedAt *time.Time `json:"created_at,omitempty"`
-	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+	CreatedAt *time.Time `json:"created_at"`
+	UpdatedAt *time.Time `json:"updated_at"`
 }
 
 func (a *AttendanceResponseDto) FromUserAttendanceEntity(attendance *entity.UserAttendance) {

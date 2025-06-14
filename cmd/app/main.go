@@ -7,6 +7,7 @@ import (
 	attendanceservice "d-payroll/service/attendance"
 	authservice "d-payroll/service/auth"
 	overtimeservice "d-payroll/service/overtime"
+	payrollservice "d-payroll/service/payroll"
 	reimbursementservice "d-payroll/service/reimbursement"
 	userservice "d-payroll/service/user"
 )
@@ -25,6 +26,7 @@ func main() {
 	attendanceDB := repository.NewAttendanceDB(db.DB)
 	reimbursementDB := repository.NewReimbursementDB(db.DB)
 	overtimeDB := repository.NewOvertimeDB(db.DB)
+	payrollDB := repository.NewPayrollDB(db.DB)
 
 	// services
 
@@ -33,6 +35,7 @@ func main() {
 	attendanceSvc := attendanceservice.NewAttendanceService(attendanceDB)
 	reimbursementSvc := reimbursementservice.NewReimbursementService(reimbursementDB)
 	overtimeSvc := overtimeservice.NewOvertimeService(config, overtimeDB, attendanceSvc)
+	payrollSvc := payrollservice.NewPayrollService(config, payrollDB)
 
 	// deliveries http
 
@@ -43,6 +46,7 @@ func main() {
 	http.NewAttendanceHttp(httpApp, attendanceSvc)
 	http.NewReimbursementHttp(httpApp, reimbursementSvc)
 	http.NewOvertimeHttp(httpApp, overtimeSvc)
+	http.NewPayrollHttp(httpApp, payrollSvc)
 
 	httpApp.Listen()
 }

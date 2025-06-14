@@ -21,14 +21,15 @@ func (c *CreateOvertimeBodyDto) ToOvertimeEntity(userID uint) *entity.UserOverti
 }
 
 type OvertimeResponseDto struct {
-	ID               *uint      `json:"id,omitempty"`
-	UserID           uint       `json:"user_id"`
-	Description      string     `json:"description"`
-	OvertimeAt       time.Time  `json:"overtime_at"`
-	DurationMilis    int        `json:"duration_milis"`
-	ApprovedByUserID *uint      `json:"approved_by_user_id"`
-	CreatedAt        *time.Time `json:"created_at,omitempty"`
-	UpdatedAt        *time.Time `json:"updated_at,omitempty"`
+	ID              *uint      `json:"id"`
+	UserID          uint       `json:"user_id"`
+	Description     string     `json:"description"`
+	OvertimeAt      time.Time  `json:"overtime_at"`
+	DurationMilis   int        `json:"duration_milis"`
+	IsApproved      bool       `json:"is_approved"`
+	UpdatedByUserID *uint      `json:"updated_by_user_id"`
+	CreatedAt       *time.Time `json:"created_at"`
+	UpdatedAt       *time.Time `json:"updated_at"`
 }
 
 func (o *OvertimeResponseDto) FromOvertimeEntity(overtime *entity.UserOvertime) {
@@ -37,7 +38,8 @@ func (o *OvertimeResponseDto) FromOvertimeEntity(overtime *entity.UserOvertime) 
 	o.Description = overtime.Description
 	o.OvertimeAt = overtime.OvertimeAt
 	o.DurationMilis = overtime.DurationMilis
-	o.ApprovedByUserID = overtime.ApprovedByUserID
+	o.IsApproved = overtime.IsApproved
+	o.UpdatedByUserID = overtime.UpdatedByUserID
 	o.CreatedAt = overtime.CreatedAt
 	o.UpdatedAt = overtime.UpdatedAt
 }

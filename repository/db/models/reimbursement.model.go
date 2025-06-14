@@ -10,12 +10,13 @@ import (
 type UserReimbursement struct {
 	gorm.Model
 
-	UserID           uint
-	User             *User `gorm:"foreignKey:UserID"`
-	Description      string
-	Amount           int
-	ApprovedByUserID *uint
-	ApprovedByUser   *User `gorm:"foreignKey:ApprovedByUserID"`
+	UserID          uint
+	User            *User `gorm:"foreignKey:UserID"`
+	Description     string
+	Amount          int
+	IsApproved      bool `gorm:"default:false"`
+	UpdatedByUserID *uint
+	UpdatedByUser   *User `gorm:"foreignKey:UpdatedByUserID"`
 }
 
 func (u *UserReimbursement) BeforeCreate(tx *gorm.DB) (err error) {
@@ -31,13 +32,14 @@ func (u *UserReimbursement) BeforeUpdate(tx *gorm.DB) (err error) {
 
 func (r *UserReimbursement) ToReimbursementEntity() *entity.UserReimbursement {
 	return &entity.UserReimbursement{
-		ID:               &r.ID,
-		UserID:           r.UserID,
-		Description:      r.Description,
-		Amount:           r.Amount,
-		ApprovedByUserID: r.ApprovedByUserID,
-		CreatedAt:        &r.CreatedAt,
-		UpdatedAt:        &r.UpdatedAt,
+		ID:              &r.ID,
+		UserID:          r.UserID,
+		Description:     r.Description,
+		Amount:          r.Amount,
+		IsApproved:      r.IsApproved,
+		UpdatedByUserID: r.UpdatedByUserID,
+		CreatedAt:       &r.CreatedAt,
+		UpdatedAt:       &r.UpdatedAt,
 	}
 }
 
@@ -45,7 +47,8 @@ func (r *UserReimbursement) FromReimbursementEntity(reimbursement *entity.UserRe
 	r.UserID = reimbursement.UserID
 	r.Description = reimbursement.Description
 	r.Amount = reimbursement.Amount
-	r.ApprovedByUserID = reimbursement.ApprovedByUserID
+	r.IsApproved = reimbursement.IsApproved
+	r.UpdatedByUserID = reimbursement.UpdatedByUserID
 
 	if reimbursement.CreatedAt != nil {
 		r.CreatedAt = *reimbursement.CreatedAt

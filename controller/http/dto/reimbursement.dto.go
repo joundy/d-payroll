@@ -19,13 +19,14 @@ func (c *CreateReimbursementBodyDto) ToReimbursementEntity(userID uint) *entity.
 }
 
 type ReimbursementResponseDto struct {
-	ID               *uint      `json:"id,omitempty"`
-	UserID           uint       `json:"user_id"`
-	Description      string     `json:"description"`
-	Amount           int        `json:"amount"`
-	ApprovedByUserID *uint      `json:"approved_by_user_id"`
-	CreatedAt        *time.Time `json:"created_at,omitempty"`
-	UpdatedAt        *time.Time `json:"updated_at,omitempty"`
+	ID              *uint      `json:"id"`
+	UserID          uint       `json:"user_id"`
+	Description     string     `json:"description"`
+	Amount          int        `json:"amount"`
+	IsApproved      bool       `json:"is_approved"`
+	UpdatedByUserID *uint      `json:"updated_by_user_id"`
+	CreatedAt       *time.Time `json:"created_at"`
+	UpdatedAt       *time.Time `json:"updated_at"`
 }
 
 func (r *ReimbursementResponseDto) FromReimbursementEntity(reimbursement *entity.UserReimbursement) {
@@ -33,7 +34,8 @@ func (r *ReimbursementResponseDto) FromReimbursementEntity(reimbursement *entity
 	r.UserID = reimbursement.UserID
 	r.Description = reimbursement.Description
 	r.Amount = reimbursement.Amount
-	r.ApprovedByUserID = reimbursement.ApprovedByUserID
+	r.IsApproved = reimbursement.IsApproved
+	r.UpdatedByUserID = reimbursement.UpdatedByUserID
 	r.CreatedAt = reimbursement.CreatedAt
 	r.UpdatedAt = reimbursement.UpdatedAt
 }

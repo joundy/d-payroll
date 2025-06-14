@@ -36,12 +36,12 @@ type userInfoDto struct {
 }
 
 type userResponseDto struct {
-	Id        *uint        `json:"id,omitempty"`
+	Id        *uint        `json:"id"`
 	Username  string       `json:"username"`
 	Role      string       `json:"role"`
-	UserInfo  *userInfoDto `json:"user_info,omitempty"`
-	CreatedAt *time.Time   `json:"created_at,omitempty"`
-	UpdatedAt *time.Time   `json:"updated_at,omitempty"`
+	UserInfo  *userInfoDto `json:"user_info"`
+	CreatedAt *time.Time   `json:"created_at"`
+	UpdatedAt *time.Time   `json:"updated_at"`
 }
 
 func (r *userResponseDto) fromUserEntity(user *entity.User) {
@@ -53,14 +53,8 @@ func (r *userResponseDto) fromUserEntity(user *entity.User) {
 			MonthlySalary: user.UserInfo.MonthlySalary,
 		}
 	}
-
-	if user.CreatedAt != nil {
-		r.CreatedAt = user.CreatedAt
-	}
-
-	if user.UpdatedAt != nil {
-		r.UpdatedAt = user.UpdatedAt
-	}
+	r.CreatedAt = user.CreatedAt
+	r.UpdatedAt = user.UpdatedAt
 }
 
 type CreateUserResponseDto userResponseDto

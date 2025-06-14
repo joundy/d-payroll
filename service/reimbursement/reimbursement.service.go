@@ -41,7 +41,7 @@ func (s *reimbursementService) ApproveReimbursement(ctx context.Context, reimbur
 	if err != nil {
 		return err
 	}
-	if reimbursement.ApprovedByUserID != nil {
+	if reimbursement.IsApproved {
 		return &internalerror.ReimbursementAlreadyApprovedError{}
 	}
 

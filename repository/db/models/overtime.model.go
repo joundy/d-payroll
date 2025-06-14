@@ -10,13 +10,14 @@ import (
 type UserOvertime struct {
 	gorm.Model
 
-	UserID           uint
-	User             *User `gorm:"foreignKey:UserID"`
-	Description      string
-	OvertimeAt       time.Time
-	DurationMilis    int
-	ApprovedByUserID *uint
-	ApprovedByUser   *User `gorm:"foreignKey:ApprovedByUserID"`
+	UserID          uint
+	User            *User `gorm:"foreignKey:UserID"`
+	Description     string
+	OvertimeAt      time.Time
+	DurationMilis   int
+	IsApproved      bool `gorm:"default:false"`
+	UpdatedByUserID *uint
+	UpdatedByUser   *User `gorm:"foreignKey:UpdatedByUserID"`
 }
 
 func (u *UserOvertime) BeforeCreate(tx *gorm.DB) (err error) {
@@ -32,14 +33,15 @@ func (u *UserOvertime) BeforeUpdate(tx *gorm.DB) (err error) {
 
 func (o *UserOvertime) ToOvertimeEntity() *entity.UserOvertime {
 	return &entity.UserOvertime{
-		ID:               &o.ID,
-		UserID:           o.UserID,
-		Description:      o.Description,
-		OvertimeAt:       o.OvertimeAt,
-		DurationMilis:    o.DurationMilis,
-		ApprovedByUserID: o.ApprovedByUserID,
-		CreatedAt:        &o.CreatedAt,
-		UpdatedAt:        &o.UpdatedAt,
+		ID:              &o.ID,
+		UserID:          o.UserID,
+		Description:     o.Description,
+		OvertimeAt:      o.OvertimeAt,
+		DurationMilis:   o.DurationMilis,
+		IsApproved:      o.IsApproved,
+		UpdatedByUserID: o.UpdatedByUserID,
+		CreatedAt:       &o.CreatedAt,
+		UpdatedAt:       &o.UpdatedAt,
 	}
 }
 
@@ -48,7 +50,8 @@ func (o *UserOvertime) FromOvertimeEntity(overtime *entity.UserOvertime) {
 	o.Description = overtime.Description
 	o.OvertimeAt = overtime.OvertimeAt
 	o.DurationMilis = overtime.DurationMilis
-	o.ApprovedByUserID = overtime.ApprovedByUserID
+	o.IsApproved = overtime.IsApproved
+	o.UpdatedByUserID = overtime.UpdatedByUserID
 
 	if overtime.CreatedAt != nil {
 		o.CreatedAt = *overtime.CreatedAt
