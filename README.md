@@ -22,6 +22,36 @@ The Dealls Payroll System is a backend application designed to manage employee p
 *   **ORM:** GORM
 *   **Authentication:** JWT
 
+## Project Structure
+
+The project follows a standard Go project layout, emphasizing a clean separation of concerns:
+
+```text
+/
+├── cmd/                     # Main applications (entry points)
+│   └── app/                 # Main application server (main.go)
+├── config/                  # Configuration loading (e.g., from .env)
+├── controller/              # HTTP request handlers and input/output structuring
+│   ├── http/                # HTTP specific controllers for API routes
+│   │   └── dto/             # Data Transfer Objects for request/response bodies
+├── db/                      # Database related files
+│   └── migrations/          # Database migration scripts (using go-migrate)
+├── entity/                  # Core domain models/structs (e.g., User, Payroll)
+├── internal-error/          # Custom error types for the application
+├── repository/              # Data access layer (interacts with the database via GORM)
+├── service/                 # Business logic layer, orchestrates operations
+├── tests/                   # Test files
+│   └── integration/         # Integration tests (using testcontainers)
+├── utils/                   # Utility/helper functions
+├── .env                     # Environment variables (local, gitignored)
+├── .env.example             # Example environment variables template
+├── go.mod                   # Go module definitions and dependencies
+├── go.sum                   # Go module checksums
+├── Makefile                 # Make commands for common tasks (build, run, test)
+├── docker-compose.yaml      # Docker Compose for development services (e.g., DB)
+└── README.md                # This file
+```
+
 ## Prerequisites
 
 *   Go (version 1.24.4 or higher)
